@@ -27,7 +27,6 @@ async function run() {
     const postCollection = client.db('photoFrame').collection('post');
 
     app.get('/post', async ( req , res) => {
-      const query = {};
       const result =await postCollection.find().toArray();
       res.send(result);
     })
