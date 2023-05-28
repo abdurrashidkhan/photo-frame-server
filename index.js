@@ -24,10 +24,17 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
-    const FoodsCollection = client.db('photoFrame').collection('foods');
-    app.get('/post', async (res , req )=>{
+    const FoodsCollection = client.db('photoFrame').collection('post');
+    const postCollation = client.db('photoFrame').collection('post');
+    app.get('/post', async (res, req) => {
       const query = {};
       const result = await FoodsCollection.find(query);
+      res.send(result);
+    })
+    // insert post 
+    app.post('/post', async (req, res) => {
+      const postData = req.body;
+      const result = await postCollation.insertOne(postData);
       res.send(result);
     })
   } finally {
@@ -37,5 +44,5 @@ async function run() {
 run().catch(console.dir);
 
 app.listen(port, () => {
-  console.log(`localhost ${port}`) 
+  console.log(`localhost ${port}`)
 })
