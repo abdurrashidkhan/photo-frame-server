@@ -1,4 +1,3 @@
-
 const express = require("express");
 require('dotenv').config();
 const cors = require("cors");
@@ -10,9 +9,33 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
+
+
+// verify token
+const verifyToken = (req, res, next) => {
+  const auth = req.headers.authorization;
+  if (!auth) {
+    return res.status(401).send({ messages: 'UnAuthorization' });
+  }
+  const token = auth.split(' ')[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
+    if (err) {
+      return res.status(403).send({ messages: 'Forbidden access' })
+    }
+    req.decoded = decoded;
+    next()
+  })
+}
+
+
+
 app.get('/', (req, res) => {
   res.send('DB connected')
 })
+
+// 
+
 // Replace the uri string with your MongoDB deployment's connection string.
 const uri =
   `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.lqf9l.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
@@ -26,14 +49,24 @@ async function run() {
     await client.connect();
     const postCollection = client.db('photoFrame').collection('post');
 
-    app.get('/post', async ( req , res) => {
-      const result =await postCollection.find().toArray();
+    app.get('/post', async (req, res) => {
+      const result = await postCollection.find().toArray();
       res.send(result);
     })
+    // 
+    
     // insert post 
     app.post('/post', async (req, res) => {
       const postData = req.body;
       const result = await postCollection.insertOne(postData);
+      res.send(result);
+    })
+
+
+    app.get('/post/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await postCollection.findOne(query);
       res.send(result);
     })
   } finally {
