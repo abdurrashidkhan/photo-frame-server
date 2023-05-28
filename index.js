@@ -24,17 +24,17 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
-    const FoodsCollection = client.db('photoFrame').collection('post');
-    const postCollation = client.db('photoFrame').collection('post');
-    app.get('/post', async (res, req) => {
+    const postCollection = client.db('photoFrame').collection('post');
+
+    app.get('/post', async ( req , res) => {
       const query = {};
-      const result = await FoodsCollection.find(query);
+      const result =await postCollection.find().toArray();
       res.send(result);
     })
     // insert post 
     app.post('/post', async (req, res) => {
       const postData = req.body;
-      const result = await postCollation.insertOne(postData);
+      const result = await postCollection.insertOne(postData);
       res.send(result);
     })
   } finally {
