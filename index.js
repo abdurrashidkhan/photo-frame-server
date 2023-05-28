@@ -48,6 +48,7 @@ async function run() {
   try {
     await client.connect();
     const postCollection = client.db('photoFrame').collection('post');
+    const likeCollection = client.db('photoFrame').collection('like');
 
     app.get('/post', async (req, res) => {
       const result = await postCollection.find().toArray();
@@ -61,6 +62,18 @@ async function run() {
       const result = await postCollection.insertOne(postData);
       res.send(result);
     })
+    app.post('/post/like', async (req, res) => {
+      const postData = req.body;
+      const result = await likeCollection.insertOne(postData);
+      res.send(result);
+    })
+    // checking like 
+    app.get('/post/like/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = {postId: id};
+      const result = await likeCollection.findOne(query);
+      res.send(result);
+    })
 
 
     app.get('/post/:id', async (req, res) => {
@@ -69,6 +82,21 @@ async function run() {
       const result = await postCollection.findOne(query);
       res.send(result);
     })
+    // 
+    // app.put('/post/:email', async(req , res)=>{
+    //   const email = req.params.email;
+    //   const updatePost = req.body;
+    //   console.log(updatePost)
+    //   const filter = { email:email };
+    //   const updateDoc = {
+    //     $set:{
+    //       like:true
+    //     }
+    //   }
+    //   const result = await postCollection.updateOne(filter , updateDoc );
+    //   res.send(result)
+    // })
+
   } finally {
     // await client.close();
   }
